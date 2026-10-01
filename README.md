@@ -8,13 +8,9 @@ Your README must contain three things:
 
 ## 1. Bug Report
 
-Describe the six bugs:
+Link to Bugreport.md
 
-* What happened?
-* Why did it happen?
-* How did you fix it?
-
-A few lines per bug are sufficient.
+[Bug report](Bugreport.md)
 
 ## 2. Design Decision
 
