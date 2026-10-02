@@ -134,8 +134,24 @@ for (int i = 0; i < items.Count; i++)
 ## Bug 3
 
 * What happened?
+
+The Save() method appends an extra line break at the end of the file:
+
+File.WriteAllText(path, string.Join("\r\n", lines) + "\r\n");
+
+This creates an empty line at the end of the file. When the file is loaded, the empty line is split and processed as data, causing an IndexOutOfRangeException.
+
 * Why did it happen?
+
+The file was saved with an empty line.
+
 * How did you fix it?
+
+I fixed the issue by removing the unnecessary trailing line break:
+
+File.WriteAllText(path, string.Join("\r\n", lines));
+
+I also have the validation in Load from the first bug fix to skip empty lines and malformed records.
 
 ## Bug 4
 

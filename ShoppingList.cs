@@ -69,7 +69,7 @@ class ShoppingList
 
         try
         {
-            File.WriteAllText(path, string.Join("\r\n", lines) + "\r\n");
+            File.WriteAllText(path, string.Join("\r\n", lines));
         }
         catch
         {
