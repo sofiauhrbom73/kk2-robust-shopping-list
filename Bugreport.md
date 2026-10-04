@@ -8,6 +8,7 @@ Describe the six bugs:
 
 A few lines per bug are sufficient.
 
+## Bug 1
 
 * What happened?
 
@@ -199,8 +200,37 @@ This solution ensures that save errors are visible to the user and prevents the 
 ## Bug 5
 
 * What happened?
+
+I got an ArgumentOutOfRangeException when trying to remove an item that was not in the list.
+
+1. Lägg till vara
+2. Ta bort vara
+3. Spara
+4. Sök vara
+5. Avsluta
+Välj: 2
+Nummer: 0
+Unhandled exception. System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
+   at System.Collections.Generic.List`1.RemoveAt(Int32 index)
+   at ShoppingList.RemoveAt(Int32 number) in C:\Users\Sofia\OneDrive\Dokument\Repository\kk2-robust-shopping-list\ShoppingList.cs:line 20
+   at Program.<Main>$(String[] args) in C:\Users\Sofia\OneDrive\Dokument\Repository\kk2-robust-shopping-list\Program.cs:line 30
+
 * Why did it happen?
+
+The problem is that RemoveAt() assumes the user always enters a valid number.
+
 * How did you fix it?
+
+public void RemoveAt(int number)
+{
+    if (number < 1 || number > items.Count)
+    {
+        Console.WriteLine("Please enter a valid item number.");
+        return;
+    }
+
+    items.RemoveAt(number - 1);
+}
 
 ## Bug 6
 
