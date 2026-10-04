@@ -19,7 +19,7 @@ class ShoppingList
     {
         if (number < 1 || number > items.Count)
         {
-            Console.WriteLine("Please enter a valid item number.");
+            Console.WriteLine("Ange ett giltigt artikelnummer.");
             return;
         }
 
@@ -60,7 +60,7 @@ class ShoppingList
             Console.WriteLine($"{i + 1}. {items[i]}");
         }
 
-        Console.WriteLine($"Totalt: {Total()} kr");
+        Console.WriteLine($"Total: {Total()} kr");
     }
 
     // Writes one item per line, as "price;name".

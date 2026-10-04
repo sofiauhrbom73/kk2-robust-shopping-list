@@ -15,13 +15,13 @@ while (true)
 
     if (!int.TryParse(Console.ReadLine(), out int choice))
     {
-        Console.WriteLine("Please enter a valid number.");
+        Console.WriteLine("Ange ett giltigt nummer.");
         continue;
     }
 
     if (choice < 1 || choice > 5)
     {
-        Console.WriteLine("Please select a valid menu option.");
+        Console.WriteLine("Välj ett giltigt menyalternativ.");
         continue;
     }
 
@@ -31,13 +31,13 @@ while (true)
         string name = Console.ReadLine();
         if (string.IsNullOrWhiteSpace(name))
         {
-            Console.WriteLine("Please enter an item name.");
+            Console.WriteLine("Ange ett namn på varan.");
             continue;
         }
         Console.Write("Pris: ");
         if (!int.TryParse(Console.ReadLine(), out int price))
         {
-            Console.WriteLine("Please enter a valid price.");
+            Console.WriteLine("Ange ett giltigt pris.");
             continue;
         }
 
@@ -49,7 +49,7 @@ while (true)
 
         if (!int.TryParse(Console.ReadLine(), out int number))
         {
-            Console.WriteLine("Please enter a valid item number.");
+            Console.WriteLine("Ange ett giltigt artikelnummer.");
             continue;
         }
 

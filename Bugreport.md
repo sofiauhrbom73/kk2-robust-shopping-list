@@ -12,92 +12,17 @@ A few lines per bug are sufficient.
 
 * What happened?
 
-This tells me that the file is found and the problem is in line 90 in ShoppingList.cs.
-
-Unhandled exception. System.IndexOutOfRangeException: Index was outside the bounds of the array.
-   at ShoppingList.Load() in C:\Users\Sofia\OneDrive\Dokument\Repository\kk2-robust-shopping-list\ShoppingList.cs:line 90
-   at Program.<Main>$(String[] args) in C:\Users\Sofia\OneDrive\Dokument\Repository\kk2-robust-shopping-list\Program.cs:line 2
+The program crashed with an IndexOutOfRangeException when loading the shopping list from the file.
 
 * Why did it happen?
 
-Search for error with print in Load method:
+The Load() method assumed that every line contained two values separated by a semicolon. An empty line produced an array with only one element, so accessing parts[1] caused an IndexOutOfRangeException.
 
- public void Load()
-    {
-        string text = File.ReadAllText(path);
-        string[] lines = text.Split('\n');
-
-        foreach (string line in lines)
-        {
-            Console.WriteLine($"'{line}'");
-
-            string[] parts = line.Split(';');
-            Console.WriteLine($"Length = {parts.Length}");
-
-            items.Add(new Item(parts[1], int.Parse(parts[0])));
-        }
-    }
-
-This tells me that the last row is empty or not correct:
-
-'15;Mjölk
-Length = 2
-'32;Bröd
-Length = 2
-'89;Ost
-Length = 2
-''
-Length = 1
+The most likely cause of the IndexOutOfRangeException is that parts[1] is accessed without first verifying that the array contains at least two elements.
 
 * How did you fix it?
 
-public void Load()
-{
-    if (!File.Exists(path))
-        return;
-
-    string[] lines = File.ReadAllLines(path);
-
-    foreach (string line in lines)
-    {
-        if (string.IsNullOrWhiteSpace(line))
-            continue;
-
-        string[] parts = line.Split(';');
-
-        if (parts.Length != 2)
-            continue;
-
-        if (!int.TryParse(parts[0], out int price))
-            continue;
-
-        items.Add(new Item(parts[1], price));
-    }
-}
-
-This version improves the robustness of the program by handling several potential error conditions:
-
-It does not crash if the file is missing.
-It does not crash when encountering empty lines in the file.
-It does not crash if a line does not contain the expected semicolon separator.
-It does not crash if the price value cannot be parsed as a valid integer.
-
-The most likely cause of the IndexOutOfRangeException is that parts[1] is accessed without first verifying that the array contains at least two elements. If parts.Length < 2, attempting to access parts[1] will throw an IndexOutOfRangeException.
-
-Result from dotnet run:
-
-1. Mjölk - 15 kr
-2. Bröd - 32 kr
-3. Ost - 89 kr
-Totalt: 121 kr
-
-1. Lägg till vara
-2. Ta bort vara
-3. Spara
-4. Sök vara
-5. Avsluta
-Välj:
-
+I added validation to skip empty lines and verify that each line contains exactly two fields before accessing parts[1]. I also replaced int.Parse() with int.TryParse() to handle invalid numeric values safely.
 
 ## Bug 2
 
@@ -107,7 +32,7 @@ After fixing the first bug, I see that the total amount is wrong.
 
 * Why did it happen?
 
-Because, the first item in the list is excluded from the total calculation.
+The loop starts at index 1 instead of 0, causing the first item in the list to be excluded from the total calculation.
 
 for (int i = 1; i < items.Count; i++)
 
@@ -143,7 +68,7 @@ This creates an empty line at the end of the file. When the file is loaded, the 
 
 * Why did it happen?
 
-The file was saved with an empty line.
+The Save() method appends an extra line break ("\r\n") after the last item. This creates an empty line at the end of the file, which is later processed by Load() as if it were an item.
 
 * How did you fix it?
 
