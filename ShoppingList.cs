@@ -4,16 +4,19 @@
 class ShoppingList
 {
     private List<Item> items = new List<Item>();
-    private string path;
+    private string basePath;
+    private string storagePath;
     private int budgetLimit = 500;
 
     /// <summary>
-    /// Creates a shopping list that stores its items at the specified file path.
+    /// Creates a shopping list with a seed file and a separate file for saved changes.
     /// </summary>
-    /// <param name="path">The file path used to load and save items.</param>
-    public ShoppingList(string path)
+    /// <param name="basePath">The original item file used when no saved changes exist.</param>
+    /// <param name="storagePath">The file path used to load and save local changes.</param>
+    public ShoppingList(string basePath, string storagePath)
     {
-        this.path = path;
+        this.basePath = basePath;
+        this.storagePath = storagePath;
     }
 
     /// <summary>
@@ -201,7 +204,7 @@ class ShoppingList
     }
 
     /// <summary>
-    /// Saves items to the configured file, one item per line as "price;name".
+    /// Saves items to the local storage file, one item per line as "price;name".
     /// </summary>
     public void Save()
     {
@@ -210,7 +213,7 @@ class ShoppingList
 
         try
         {
-            writer = new StreamWriter(path);
+            writer = new StreamWriter(storagePath);
 
             foreach (Item item in items)
             {
@@ -257,14 +260,16 @@ class ShoppingList
     }
 
     /// <summary>
-    /// Loads valid items from the configured file; does nothing if the file is missing.
+    /// Loads valid items from local storage, or from the base file if no local save exists.
     /// </summary>
     public void Load()
     {
-        if (!File.Exists(path))
+        string sourcePath = File.Exists(storagePath) ? storagePath : basePath;
+
+        if (!File.Exists(sourcePath))
             return;
 
-        string[] lines = File.ReadAllLines(path);
+        string[] lines = File.ReadAllLines(sourcePath);
 
         foreach (string line in lines)
         {

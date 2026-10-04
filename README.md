@@ -16,9 +16,11 @@ Link to Bugreport.md
 
 `ShoppingList` has a budget limit of 500 kr. Before adding an item, `Add` checks whether the current total plus the item's price would exceed this limit. If it would, `Add` throws a `BudgetExceededException` and does not add the item.
 
-I chose an exception because exceeding the budget means the requested operation cannot be completed. The custom exception makes this situation clear to the caller. `Program.cs` catches it, displays the message to the user, and continues running. The same `try` block also handles invalid item values rejected by the `Item` constructor.
+I chose an exception because exceeding the budget means the requested operation cannot be completed. The custom exception makes this situation clear to the caller. `ShoppingList.Run` catches it, displays the message to the user, and continues running. The same `try` block also handles invalid item values rejected by the `Item` constructor.
 
 In `ShoppingList.Save`, a `finally` block disposes the `StreamWriter` so the file is closed whether saving succeeds or fails. The success message is only shown if writing and closing the file both succeed.
+
+The original `items.txt` is kept as the starter list. Saved changes go to `items.local.txt`, which is ignored by Git. This keeps the starter file unchanged while allowing saved changes to persist between runs on this computer.
 
 ## 3. Class Diagram
 
@@ -26,10 +28,11 @@ In `ShoppingList.Save`, a `finally` block disposes the `StreamWriter` so the fil
 +------------------------+          +-------------------------------+
 |        Program         | uses     |          ShoppingList          |
 +------------------------+--------->+-------------------------------+
-| Reads user input       |          | items: List<Item>              |
-| Catches exceptions     |          | budgetLimit: int               |
-| Shows messages         |          | Add(item): checks budget       |
-+------------------------+          | Total(): int                    |
+| Starts the app         |          | Runs menu and handles input     |
+| Calls ShoppingList.Run |          | items: List<Item>              |
++------------------------+          | budgetLimit: int                |
+                                    | Add(item): checks budget        |
+                                    | Total(): int                    |
                                     +---------------+---------------+
                                                     | contains
                                                     v
@@ -122,5 +125,3 @@ Need to handle FileNotFoundException. If we cannot find the file, the item will 
 dont catch the exception and the message will be "Listan är sparad". Wrong information. 
 
 Let see what I find out after running the program.
-
-
