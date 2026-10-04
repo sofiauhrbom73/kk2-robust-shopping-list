@@ -37,11 +37,16 @@ while (true)
             Console.WriteLine("Ange ett namn på varan.");
             continue;
         }
-        Console.Write("Pris: ");
-        if (!int.TryParse(Console.ReadLine(), out int price))
+        int price;
+        while (true)
         {
+            Console.Write("Pris: ");
+            if (int.TryParse(Console.ReadLine(), out price))
+            {
+                break;
+            }
+
             Console.WriteLine("Ange ett giltigt pris.");
-            continue;
         }
 
         // Item validation and budget errors are shown to the user; the menu continues.
