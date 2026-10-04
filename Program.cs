@@ -19,18 +19,40 @@ while (true)
         continue;
     }
 
+    if (choice < 1 || choice > 5)
+    {
+        Console.WriteLine("Please select a valid menu option.");
+        continue;
+    }
+
     if (choice == 1)
     {
         Console.Write("Namn: ");
         string name = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            Console.WriteLine("Please enter an item name.");
+            continue;
+        }
         Console.Write("Pris: ");
-        int price = int.Parse(Console.ReadLine());
+        if (!int.TryParse(Console.ReadLine(), out int price))
+        {
+            Console.WriteLine("Please enter a valid price.");
+            continue;
+        }
+
         list.Add(new Item(name, price));
     }
     else if (choice == 2)
     {
         Console.Write("Nummer: ");
-        int number = int.Parse(Console.ReadLine());
+
+        if (!int.TryParse(Console.ReadLine(), out int number))
+        {
+            Console.WriteLine("Please enter a valid item number.");
+            continue;
+        }
+
         list.RemoveAt(number);
     }
     else if (choice == 3)

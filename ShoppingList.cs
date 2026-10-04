@@ -82,8 +82,6 @@ class ShoppingList
         {
             Console.WriteLine($"Failed to save the list: {ex.Message}");
         }
-
-        Console.WriteLine("Listan är sparad.");
     }
 
     // Reads the file back into the list.
