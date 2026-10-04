@@ -8,12 +8,12 @@ class Item
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new ArgumentException("Item name cannot be empty.", nameof(name));
+            throw new ArgumentException("Varans namn får inte vara tomt.", nameof(name));
         }
 
         if (price < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(price), "Item price cannot be negative.");
+            throw new ArgumentOutOfRangeException(nameof(price), "Varans pris får inte vara negativt.");
         }
 
         Name = name;

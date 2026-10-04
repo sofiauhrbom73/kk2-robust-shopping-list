@@ -14,13 +14,35 @@ Link to Bugreport.md
 
 ## 2. Design Decision
 
-Explain how `Add` rejects an item when the budget limit would be exceeded, and why you chose that approach.
+`ShoppingList` has a budget limit of 500 kr. Before adding an item, `Add` checks whether the current total plus the item's price would exceed this limit. If it would, `Add` throws a `BudgetExceededException` and does not add the item.
+
+I chose an exception because exceeding the budget means the requested operation cannot be completed. The custom exception makes this situation clear to the caller. `Program.cs` catches it, displays the message to the user, and continues running. The same `try` block also handles invalid item values rejected by the `Item` constructor.
+
+In `ShoppingList.Save`, a `finally` block disposes the `StreamWriter` so the file is closed whether saving succeeds or fails. The success message is only shown if writing and closing the file both succeed.
 
 ## 3. Class Diagram
 
-Include a simple diagram of the program after your changes.
+```text
++------------------------+          +-------------------------------+
+|        Program         | uses     |          ShoppingList          |
++------------------------+--------->+-------------------------------+
+| Reads user input       |          | items: List<Item>              |
+| Catches exceptions     |          | budgetLimit: int               |
+| Shows messages         |          | Add(item): checks budget       |
++------------------------+          | Total(): int                    |
+                                    +---------------+---------------+
+                                                    | contains
+                                                    v
+                                    +-------------------------------+
+                                    |             Item              |
+                                    +-------------------------------+
+                                    | Name: string                  |
+                                    | Price: int                    |
+                                    | Validates name and price      |
+                                    +-------------------------------+
 
-Three boxes are sufficient.
+                 ShoppingList.Add may throw BudgetExceededException
+```
 
 # Code review
 My check of the code before running the program.
@@ -100,7 +122,5 @@ Need to handle FileNotFoundException. If we cannot find the file, the item will 
 dont catch the exception and the message will be "Listan är sparad". Wrong information. 
 
 Let see what I find out after running the program.
-
-
 
 

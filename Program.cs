@@ -1,6 +1,8 @@
+// Load saved items before starting the interactive menu.
 ShoppingList list = new ShoppingList("items.txt");
 list.Load();
 
+// Keep accepting menu choices until the user selects Exit.
 while (true)
 {
     Console.WriteLine();
@@ -13,6 +15,7 @@ while (true)
     Console.WriteLine("5. Avsluta");
     Console.Write("Välj: ");
 
+    // TryParse lets the program handle non-numeric input without crashing.
     if (!int.TryParse(Console.ReadLine(), out int choice))
     {
         Console.WriteLine("Ange ett giltigt nummer.");
@@ -41,6 +44,7 @@ while (true)
             continue;
         }
 
+        // Item validation and budget errors are shown to the user; the menu continues.
         try
         {
             list.Add(new Item(name, price));

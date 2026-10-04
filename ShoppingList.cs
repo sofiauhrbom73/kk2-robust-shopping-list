@@ -1,15 +1,26 @@
-// Holds the items and takes care of loading and saving them.
+/// <summary>
+/// Manages shopping list items, enforces the budget, and handles file storage.
+/// </summary>
 class ShoppingList
 {
     private List<Item> items = new List<Item>();
     private string path;
     private int budgetLimit = 500;
 
+    /// <summary>
+    /// Creates a shopping list that stores its items at the specified file path.
+    /// </summary>
+    /// <param name="path">The file path used to load and save items.</param>
     public ShoppingList(string path)
     {
         this.path = path;
     }
 
+    /// <summary>
+    /// Adds an item unless doing so would exceed the budget limit.
+    /// </summary>
+    /// <param name="item">The item to add.</param>
+    /// <exception cref="BudgetExceededException">The item would exceed the budget limit.</exception>
     public void Add(Item item)
     {
         if (Total() + item.Price > budgetLimit)
@@ -20,7 +31,10 @@ class ShoppingList
         items.Add(item);
     }
 
-    // Removes the item the user sees as number 1, 2, 3 ...
+    /// <summary>
+    /// Removes an item using the 1-based number shown to the user.
+    /// </summary>
+    /// <param name="number">The item's displayed number.</param>
     public void RemoveAt(int number)
     {
         if (number < 1 || number > items.Count)
@@ -32,7 +46,10 @@ class ShoppingList
         items.RemoveAt(number - 1);
     }
 
-    // Adds up the price of every item on the list.
+    /// <summary>
+    /// Calculates the combined price of all items.
+    /// </summary>
+    /// <returns>The total price in kronor.</returns>
     public int Total()
     {
         int sum = 0;
@@ -45,7 +62,11 @@ class ShoppingList
         return sum;
     }
 
-    // Looks up an item by its name. Returns null if there is no such item.
+    /// <summary>
+    /// Finds the first item with the specified name.
+    /// </summary>
+    /// <param name="name">The name to search for.</param>
+    /// <returns>The matching item, or null if no match exists.</returns>
     public Item Find(string name)
     {
         foreach (Item item in items)
@@ -59,6 +80,9 @@ class ShoppingList
         return null;
     }
 
+    /// <summary>
+    /// Prints each item and the current total to the console.
+    /// </summary>
     public void Print()
     {
         for (int i = 0; i < items.Count; i++)
@@ -69,28 +93,65 @@ class ShoppingList
         Console.WriteLine($"Total: {Total()} kr");
     }
 
-    // Writes one item per line, as "price;name".
+    /// <summary>
+    /// Saves items to the configured file, one item per line as "price;name".
+    /// </summary>
     public void Save()
     {
-        List<string> lines = new List<string>();
-
-        foreach (Item item in items)
-        {
-            lines.Add($"{item.Price};{item.Name}");
-        }
+        StreamWriter writer = null;
+        bool saveSucceeded = false;
 
         try
         {
-            File.WriteAllText(path, string.Join("\r\n", lines));
-            Console.WriteLine("Listan har sparats.");
+            writer = new StreamWriter(path);
+
+            foreach (Item item in items)
+            {
+                writer.WriteLine($"{item.Price};{item.Name}");
+            }
+
+            writer.Flush();
+            saveSucceeded = true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             Console.WriteLine($"Det gick inte att spara listan: {ex.Message}");
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.WriteLine($"Du har inte behörighet att spara listan: {ex.Message}");
+        }
+        finally
+        {
+            // Always close the file, including when writing fails.
+            if (writer != null)
+            {
+                try
+                {
+                    writer.Dispose();
+                }
+                catch (IOException ex)
+                {
+                    saveSucceeded = false;
+                    Console.WriteLine($"Det gick inte att stänga filen: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    saveSucceeded = false;
+                    Console.WriteLine($"Du har inte behörighet att stänga filen: {ex.Message}");
+                }
+            }
+        }
+
+        if (saveSucceeded)
+        {
+            Console.WriteLine("Listan har sparats.");
+        }
     }
 
-    // Reads the file back into the list.
+    /// <summary>
+    /// Loads valid items from the configured file; does nothing if the file is missing.
+    /// </summary>
     public void Load()
     {
         if (!File.Exists(path))
@@ -108,6 +169,7 @@ class ShoppingList
             if (parts.Length != 2)
                 continue;
 
+            // Skip malformed rows rather than adding invalid item data.
             if (!int.TryParse(parts[0], out int price))
                 continue;
 
