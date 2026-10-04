@@ -235,5 +235,30 @@ public void RemoveAt(int number)
 ## Bug 6
 
 * What happened?
+
+The program crashed when the I entered invalid input in the menu, for example: abc or pressed Enter.
+
+1. Lägg till vara
+2. Ta bort vara
+3. Spara
+4. Sök vara
+5. Avsluta
+Välj: abc
+Unhandled exception. System.FormatException: The input string 'abc' was not in a correct format.
+   at System.Number.ThrowFormatException[TChar](ReadOnlySpan`1 value)
+   at System.Int32.Parse(String s)
+   at Program.<Main>$(String[] args) in C:\Users\Sofia\OneDrive\Dokument\Repository\kk2-robust-shopping-list\Program.cs:line 16
+
 * Why did it happen?
+
+The code converts user input directly to an integer without validation:
+
+int choice = int.Parse(Console.ReadLine());
+
 * How did you fix it?
+
+if (!int.TryParse(Console.ReadLine(), out int choice))
+{
+    Console.WriteLine("Please enter a valid number.");
+    continue;
+}
