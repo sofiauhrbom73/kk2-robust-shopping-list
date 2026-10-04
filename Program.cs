@@ -41,7 +41,18 @@ while (true)
             continue;
         }
 
-        list.Add(new Item(name, price));
+        try
+        {
+            list.Add(new Item(name, price));
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (BudgetExceededException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
     else if (choice == 2)
     {

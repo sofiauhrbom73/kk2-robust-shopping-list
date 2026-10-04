@@ -3,6 +3,7 @@ class ShoppingList
 {
     private List<Item> items = new List<Item>();
     private string path;
+    private int budgetLimit = 500;
 
     public ShoppingList(string path)
     {
@@ -11,6 +12,11 @@ class ShoppingList
 
     public void Add(Item item)
     {
+        if (Total() + item.Price > budgetLimit)
+        {
+            throw new BudgetExceededException($"Budgetgränsen på {budgetLimit} kr har överskridits.");
+        }
+
         items.Add(item);
     }
 
@@ -76,11 +82,11 @@ class ShoppingList
         try
         {
             File.WriteAllText(path, string.Join("\r\n", lines));
-            Console.WriteLine("The list has been saved.");
+            Console.WriteLine("Listan har sparats.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to save the list: {ex.Message}");
+            Console.WriteLine($"Det gick inte att spara listan: {ex.Message}");
         }
     }
 
