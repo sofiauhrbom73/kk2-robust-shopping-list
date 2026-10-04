@@ -70,9 +70,11 @@ class ShoppingList
         try
         {
             File.WriteAllText(path, string.Join("\r\n", lines));
+            Console.WriteLine("The list has been saved.");
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Failed to save the list: {ex.Message}");
         }
 
         Console.WriteLine("Listan är sparad.");

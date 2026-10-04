@@ -8,7 +8,6 @@ Describe the six bugs:
 
 A few lines per bug are sufficient.
 
-## Bug 1 - dotnet run
 
 * What happened?
 
@@ -156,8 +155,46 @@ I also have the validation in Load from the first bug fix to skip empty lines an
 ## Bug 4
 
 * What happened?
+
+The program displayed the message:
+
+Console.WriteLine("Listan är sparad.");
+
+even when the file was not successfully saved.
+
 * Why did it happen?
+
+The Save() method contains an empty catch block:
+
+try
+{
+    File.WriteAllText(path, string.Join("\r\n", lines));
+}
+catch
+{
+}
+
+This catches and suppresses all exceptions without reporting them. As a result, if an error occurs during the save operation (for example, an invalid path, missing directory, or insufficient permissions), the exception is ignored and the program continues execution.
+
+The user is then shown the message:
+
+Console.WriteLine("Listan är sparad.");
+
+which incorrectly indicates that the save operation was successful.
+
 * How did you fix it?
+
+try
+{
+    File.WriteAllText(path, string.Join("\r\n", lines));
+    Console.WriteLine("The list has been saved.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Failed to save the list: {ex.Message}");
+}
+
+This solution ensures that save errors are visible to the user and prevents the program from falsely reporting a successful save operation.
 
 ## Bug 5
 
