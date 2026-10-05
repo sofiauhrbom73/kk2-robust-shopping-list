@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 /// <summary>
 /// Manages shopping list items, enforces the budget, and handles file storage.
 /// </summary>
@@ -40,7 +43,13 @@ class ShoppingList
             Console.Write("Välj: ");
 
             // TryParse lets the program handle non-numeric input without crashing.
-            if (!int.TryParse(Console.ReadLine(), out int choice))
+            string choiceInput = Console.ReadLine();
+            if (choiceInput == null)
+            {
+                return;
+            }
+
+            if (!int.TryParse(choiceInput, out int choice))
             {
                 Console.WriteLine("Ange ett giltigt nummer.");
                 continue;
@@ -56,6 +65,11 @@ class ShoppingList
             {
                 Console.Write("Namn: ");
                 string name = Console.ReadLine();
+                if (name == null)
+                {
+                    return;
+                }
+
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     Console.WriteLine("Ange ett namn på varan.");
@@ -66,7 +80,13 @@ class ShoppingList
                 while (true)
                 {
                     Console.Write("Pris: ");
-                    if (int.TryParse(Console.ReadLine(), out price))
+                    string priceInput = Console.ReadLine();
+                    if (priceInput == null)
+                    {
+                        return;
+                    }
+
+                    if (int.TryParse(priceInput, out price))
                     {
                         break;
                     }
@@ -92,7 +112,13 @@ class ShoppingList
             {
                 Console.Write("Nummer: ");
 
-                if (!int.TryParse(Console.ReadLine(), out int number))
+                string numberInput = Console.ReadLine();
+                if (numberInput == null)
+                {
+                    return;
+                }
+
+                if (!int.TryParse(numberInput, out int number))
                 {
                     Console.WriteLine("Ange ett giltigt artikelnummer.");
                     continue;
@@ -108,6 +134,11 @@ class ShoppingList
             {
                 Console.Write("Namn att söka efter: ");
                 string wanted = Console.ReadLine();
+                if (wanted == null)
+                {
+                    return;
+                }
+
                 Item found = Find(wanted);
 
                 if (found == null)
@@ -133,7 +164,7 @@ class ShoppingList
     /// <exception cref="BudgetExceededException">The item would exceed the budget limit.</exception>
     public void Add(Item item)
     {
-        if (Total() + item.Price > budgetLimit)
+        if ((long)Total() + item.Price > budgetLimit)
         {
             throw new BudgetExceededException($"Budgetgränsen på {budgetLimit} kr har överskridits.");
         }
@@ -217,7 +248,11 @@ class ShoppingList
 
             foreach (Item item in items)
             {
-                writer.WriteLine($"{item.Price};{item.Name}");
+                writer.WriteLine(JsonSerializer.Serialize(new PersistedItem
+                {
+                    Name = item.Name,
+                    Price = item.Price
+                }));
             }
 
             writer.Flush();
@@ -270,22 +305,72 @@ class ShoppingList
             return;
 
         string[] lines = File.ReadAllLines(sourcePath);
+        long loadedTotal = Total();
 
-        foreach (string line in lines)
+        for (int i = 0; i < lines.Length; i++)
         {
+            string line = lines[i];
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            string[] parts = line.Split(';');
+            string name;
+            int price;
+            try
+            {
+                if (line.TrimStart().StartsWith("{", StringComparison.Ordinal))
+                {
+                    PersistedItem savedItem = JsonSerializer.Deserialize<PersistedItem>(line);
+                    if (savedItem == null)
+                    {
+                        Console.WriteLine($"Ogiltig rad {i + 1} i listfilen hoppades över.");
+                        continue;
+                    }
 
-            if (parts.Length != 2)
+                    name = savedItem.Name;
+                    price = savedItem.Price;
+                }
+                else
+                {
+                    int separatorIndex = line.IndexOf(';');
+                    if (separatorIndex < 0 ||
+                        !int.TryParse(line.Substring(0, separatorIndex), out price))
+                    {
+                        Console.WriteLine($"Ogiltig rad {i + 1} i listfilen hoppades över.");
+                        continue;
+                    }
+
+                    name = line.Substring(separatorIndex + 1);
+                }
+            }
+            catch (JsonException)
+            {
+                Console.WriteLine($"Ogiltig rad {i + 1} i listfilen hoppades över.");
                 continue;
+            }
 
-            // Skip malformed rows rather than adding invalid item data.
-            if (!int.TryParse(parts[0], out int price))
+            if (string.IsNullOrWhiteSpace(name) || price < 0)
+            {
+                Console.WriteLine($"Ogiltig rad {i + 1} i listfilen hoppades över.");
                 continue;
+            }
 
-            items.Add(new Item(parts[1], price));
+            if (loadedTotal + price > budgetLimit)
+            {
+                Console.WriteLine($"Rad {i + 1} överskrider budgetgränsen och hoppades över.");
+                continue;
+            }
+
+            items.Add(new Item(name, price));
+            loadedTotal += price;
         }
+    }
+
+    private sealed class PersistedItem
+    {
+        [JsonRequired]
+        public string Name { get; set; }
+
+        [JsonRequired]
+        public int Price { get; set; }
     }
 }

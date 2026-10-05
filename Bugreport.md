@@ -187,3 +187,73 @@ if (!int.TryParse(Console.ReadLine(), out int choice))
     Console.WriteLine("Please enter a valid number.");
     continue;
 }
+
+## Bug 7
+
+* What happened?
+
+An item with an extremely large price could be added even though it exceeded the 500 kr budget.
+
+* Why did it happen?
+
+`Total() + item.Price` used `int` arithmetic. The addition could overflow and become negative before the budget comparison.
+
+* How did you fix it?
+
+The budget check now converts the total to `long` before adding the item's price.
+
+## Bug 8
+
+* What happened?
+
+Items loaded from a starter or saved file could make the list total exceed the budget.
+
+* Why did it happen?
+
+`Load()` added parsed items directly without checking the combined total against the budget.
+
+* How did you fix it?
+
+The loader now skips and reports rows that would exceed the budget.
+
+## Bug 9
+
+* What happened?
+
+A saved row with a negative price could crash the program while loading.
+
+* Why did it happen?
+
+The price parsed successfully, but creating an `Item` with a negative price throws an `ArgumentOutOfRangeException`.
+
+* How did you fix it?
+
+The loader now validates names and prices before creating an `Item`, and skips and reports invalid rows.
+
+## Bug 10
+
+* What happened?
+
+When input ended, the program kept displaying the menu instead of exiting.
+
+* Why did it happen?
+
+`Console.ReadLine()` returns `null` at end-of-input. The failed parse was treated like invalid input, so the menu loop continued.
+
+* How did you fix it?
+
+The program now exits the menu when end-of-input is reached, including at the name, price, remove, and search prompts.
+
+## Bug 11
+
+* What happened?
+
+An item name containing a semicolon could not be restored from the saved file.
+
+* Why did it happen?
+
+The `price;name` format used semicolons as separators, so a semicolon in the name made a row appear malformed.
+
+* How did you fix it?
+
+New saves use JSON lines, which preserve special characters in names. The loader continues to support existing `price;name` files.

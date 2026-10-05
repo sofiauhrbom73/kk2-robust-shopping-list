@@ -20,7 +20,7 @@ I chose an exception because exceeding the budget means the requested operation 
 
 In `ShoppingList.Save`, a `finally` block disposes the `StreamWriter` so the file is closed whether saving succeeds or fails. The success message is only shown if writing and closing the file both succeed.
 
-The original `items.txt` is kept as the starter list. Saved changes go to `items.local.txt`, which is ignored by Git. This keeps the starter file unchanged while allowing saved changes to persist between runs on this computer.
+The original `items.txt` is kept as the starter list. Saved changes go to `items.local.txt`, which is ignored by Git. New saves use JSON lines so names containing special characters are preserved; older `price;name` files can still be loaded. This keeps the starter file unchanged while allowing saved changes to persist between runs on this computer.
 
 ## 3. Class Diagram
 
