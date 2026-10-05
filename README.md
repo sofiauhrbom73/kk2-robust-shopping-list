@@ -24,28 +24,7 @@ The original `items.txt` is kept as the starter list. Saved changes go to `items
 
 ## 3. Class Diagram
 
-```text
-+------------------------+          +-------------------------------+
-|        Program         | uses     |          ShoppingList          |
-+------------------------+--------->+-------------------------------+
-| Starts the app         |          | Runs menu and handles input     |
-| Calls ShoppingList.Run |          | items: List<Item>              |
-+------------------------+          | budgetLimit: int                |
-                                    | Add(item): checks budget        |
-                                    | Total(): int                    |
-                                    +---------------+---------------+
-                                                    | contains
-                                                    v
-                                    +-------------------------------+
-                                    |             Item              |
-                                    +-------------------------------+
-                                    | Name: string                  |
-                                    | Price: int                    |
-                                    | Validates name and price      |
-                                    +-------------------------------+
-
-                 ShoppingList.Add may throw BudgetExceededException
-```
+[View the Mermaid class diagram](Uml.md).
 
 # Code review
 My check of the code before running the program.
